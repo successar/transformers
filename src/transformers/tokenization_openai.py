@@ -77,6 +77,9 @@ class OpenAIGPTTokenizer(PreTrainedTokenizer):
     - lower case all inputs
     - uses SpaCy tokenizer and ftfy for pre-BPE tokenization if they are installed, fallback to BERT's BasicTokenizer if not.
 
+    This tokenizer inherits from :class:`~transformers.PreTrainedTokenizer` which contains most of the methods. Users
+    should refer to the superclass for more information regarding methods.
+
     Args:
         vocab_file (:obj:`str`):
             Path to the vocabulary file.
