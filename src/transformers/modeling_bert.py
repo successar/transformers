@@ -213,6 +213,7 @@ class BertSelfAttention(nn.Module):
         encoder_hidden_states=None,
         encoder_attention_mask=None,
     ):
+        B, L, _ = hidden_states.shape
         mixed_query_layer = self.query(hidden_states)
 
         # If this is instantiated as a cross-attention module, the keys
@@ -226,16 +227,26 @@ class BertSelfAttention(nn.Module):
             mixed_key_layer = self.key(hidden_states)
             mixed_value_layer = self.value(hidden_states)
 
+        attention_mask = (attention_mask == 0).float().squeeze() #(B, L)
+
+        unsqueezed_mask = attention_mask.unsqueeze(-1).unsqueeze(1) #(B, 1, L, H)
+
         query_layer = nn.ReLU()(self.transpose_for_scores(mixed_query_layer)) #(B, 12, L, H)
         key_layer = nn.ReLU()(self.transpose_for_scores(mixed_key_layer)) #(B, 12, L, H)
-        value_layer = nn.ReLU()(self.transpose_for_scores(mixed_value_layer)) #(B, 12, L, H)
+        value_layer = self.transpose_for_scores(mixed_value_layer) #(B, 12, L, H)
+
         query_layer = query_layer * unsqueezed_mask
         key_layer = (key_layer / math.sqrt(self.attention_head_size)) * unsqueezed_mask
         value_layer = value_layer * unsqueezed_mask
+
         KV = torch.matmul(key_layer.transpose(-1, -2), value_layer)
         QKV = torch.matmul(query_layer, KV)
+
         normalizer = torch.matmul(query_layer, key_layer.sum(2).unsqueeze(-1)) + 1e-8
+
         context_layer = QKV / normalizer
+
+        attention_probs = torch.zeros((B, self.num_attention_heads, L, L))
 
         context_layer = context_layer.permute(0, 2, 1, 3).contiguous()
         new_context_layer_shape = context_layer.size()[:-2] + (self.all_head_size,)
