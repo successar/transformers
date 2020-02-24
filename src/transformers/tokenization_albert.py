@@ -58,7 +58,7 @@ class AlbertTokenizer(PreTrainedTokenizer):
     """
     Constructs an ALBERT tokenizer. Based on `SentencePiece <https://github.com/google/sentencepiece>`__
 
-    This tokenizer inherits from :class:`~transformers.PreTrainedTokenizer` which contains most of the method. Users
+    This tokenizer inherits from :class:`~transformers.PreTrainedTokenizer` which contains most of the methods. Users
     should refer to the superclass for more information regarding methods.
 
     Args:
@@ -238,8 +238,8 @@ class AlbertTokenizer(PreTrainedTokenizer):
         by concatenating and adding special tokens.
         An ALBERT sequence has the following format:
 
-        - single sequence: [CLS] X [SEP]
-        - pair of sequences: [CLS] A [SEP] B [SEP]
+        - single sequence: ``[CLS] X [SEP]``
+        - pair of sequences: ``[CLS] A [SEP] B [SEP]``
 
         Args:
             token_ids_0 (:obj:`List[int]`):

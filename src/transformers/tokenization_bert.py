@@ -120,7 +120,7 @@ class BertTokenizer(PreTrainedTokenizer):
     r"""
     Constructs a BERT tokenizer. Based on WordPiece.
 
-    This tokenizer inherits from :class:`~transformers.PreTrainedTokenizer` which contains most of the method. Users
+    This tokenizer inherits from :class:`~transformers.PreTrainedTokenizer` which contains most of the methods. Users
     should refer to the superclass for more information regarding methods.
 
     Args:
@@ -234,8 +234,8 @@ class BertTokenizer(PreTrainedTokenizer):
         by concatenating and adding special tokens.
         A BERT sequence has the following format:
 
-        - single sequence: [CLS] X [SEP]
-        - pair of sequences: [CLS] A [SEP] B [SEP]
+        - single sequence: ``[CLS] X [SEP]``
+        - pair of sequences: ``[CLS] A [SEP] B [SEP]``
 
         Args:
             token_ids_0 (:obj:`List[int]`):
