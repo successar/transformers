@@ -16,6 +16,7 @@
 
 
 import logging
+from typing import List, Optional
 
 from .tokenization_gpt2 import GPT2Tokenizer
 
@@ -147,7 +148,9 @@ class RobertaTokenizer(GPT2Tokenizer):
         self.max_len_single_sentence = self.max_len - 2  # take into account special tokens
         self.max_len_sentences_pair = self.max_len - 4  # take into account special tokens
 
-    def build_inputs_with_special_tokens(self, token_ids_0, token_ids_1=None):
+    def build_inputs_with_special_tokens(
+        self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
+    ) -> List[int]:
         """
         Build model inputs from a sequence or a pair of sequence for sequence classification tasks
         by concatenating and adding special tokens.
@@ -171,7 +174,9 @@ class RobertaTokenizer(GPT2Tokenizer):
         sep = [self.sep_token_id]
         return cls + token_ids_0 + sep + sep + token_ids_1 + sep
 
-    def get_special_tokens_mask(self, token_ids_0, token_ids_1=None, already_has_special_tokens=False):
+    def get_special_tokens_mask(
+        self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None, already_has_special_tokens: bool = False
+    ) -> List[int]:
         """
         Retrieves sequence ids from a token list that has no special tokens added. This method is called when adding
         special tokens using the tokenizer ``prepare_for_model`` or ``encode_plus`` methods.
@@ -199,7 +204,9 @@ class RobertaTokenizer(GPT2Tokenizer):
             return [1] + ([0] * len(token_ids_0)) + [1]
         return [1] + ([0] * len(token_ids_0)) + [1, 1] + ([0] * len(token_ids_1)) + [1]
 
-    def create_token_type_ids_from_sequences(self, token_ids_0, token_ids_1=None):
+    def create_token_type_ids_from_sequences(
+            self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
+    ) -> List[int]:
         """
         Creates a mask from the two sequences passed to be used in a sequence-pair classification task.
         RoBERTa does not make use of token type ids, therefore a list of zeros is returned.
