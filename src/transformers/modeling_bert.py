@@ -213,7 +213,6 @@ class BertSelfAttention(nn.Module):
         encoder_hidden_states=None,
         encoder_attention_mask=None,
     ):
-        B, L, _ = hidden_states.shape
         mixed_query_layer = self.query(hidden_states)
 
         # If this is instantiated as a cross-attention module, the keys
@@ -227,26 +226,30 @@ class BertSelfAttention(nn.Module):
             mixed_key_layer = self.key(hidden_states)
             mixed_value_layer = self.value(hidden_states)
 
-        attention_mask = (attention_mask == 0).float().squeeze() #(B, L)
+        query_layer = nn.ReLU()(self.transpose_for_scores(mixed_query_layer))
+        key_layer = nn.ReLU()(self.transpose_for_scores(mixed_key_layer))
+        value_layer = self.transpose_for_scores(mixed_value_layer)
 
-        unsqueezed_mask = attention_mask.unsqueeze(-1).unsqueeze(1) #(B, 1, L, H)
+        # Take the dot product between "query" and "key" to get the raw attention scores.
+        attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
+        attention_scores = attention_scores / math.sqrt(self.attention_head_size)
 
-        query_layer = nn.ReLU()(self.transpose_for_scores(mixed_query_layer)) #(B, 12, L, H)
-        key_layer = nn.ReLU()(self.transpose_for_scores(mixed_key_layer)) #(B, 12, L, H)
-        value_layer = self.transpose_for_scores(mixed_value_layer) #(B, 12, L, H)
+        if attention_mask is not None:
+            # Apply the attention mask is (precomputed for all layers in BertModel forward() function)
+            attention_scores = attention_scores * (attention_mask == 0).float()
 
-        query_layer = query_layer * unsqueezed_mask
-        key_layer = (key_layer / math.sqrt(self.attention_head_size)) * unsqueezed_mask
-        value_layer = value_layer * unsqueezed_mask
+        # Normalize the attention scores to probabilities.
+        attention_probs = attention_scores / (attention_scores.sum(-1, keepdim=True) + 1e-8)
 
-        KV = torch.matmul(key_layer.transpose(-1, -2), value_layer)
-        QKV = torch.matmul(query_layer, KV)
+        # This is actually dropping out entire tokens to attend to, which might
+        # seem a bit unusual, but is taken from the original Transformer paper.
+        attention_probs = self.dropout(attention_probs)
 
-        normalizer = torch.matmul(query_layer, key_layer.sum(2).unsqueeze(-1)) + 1e-8
+        # # Mask heads if we want to
+        # if head_mask is not None:
+        #     attention_probs = attention_probs * head_mask
 
-        context_layer = QKV / normalizer
-
-        attention_probs = torch.zeros((B, self.num_attention_heads, L, L))
+        context_layer = torch.matmul(attention_probs, value_layer)
 
         context_layer = context_layer.permute(0, 2, 1, 3).contiguous()
         new_context_layer_shape = context_layer.size()[:-2] + (self.all_head_size,)
