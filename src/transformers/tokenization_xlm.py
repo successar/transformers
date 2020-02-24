@@ -857,8 +857,8 @@ class XLMTokenizer(PreTrainedTokenizer):
         by concatenating and adding special tokens.
         A XLM sequence has the following format:
 
-        - single sequence: <s> X </s>
-        - pair of sequences: <s> A </s> B </s>
+        - single sequence: ``<s> X </s>``
+        - pair of sequences: ``<s> A </s> B </s>``
 
         Args:
             token_ids_0 (:obj:`List[int]`):

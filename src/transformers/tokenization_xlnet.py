@@ -241,8 +241,8 @@ class XLNetTokenizer(PreTrainedTokenizer):
         by concatenating and adding special tokens.
         An XLNet sequence has the following format:
 
-        - single sequence: X <sep> <cls>
-        - pair of sequences: A <sep> B <sep> <cls>
+        - single sequence: ``X <sep> <cls>``
+        - pair of sequences: ``A <sep> B <sep> <cls>``
 
         Args:
             token_ids_0 (:obj:`List[int]`):
