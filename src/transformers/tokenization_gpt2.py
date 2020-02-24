@@ -241,7 +241,7 @@ class GPT2Tokenizer(PreTrainedTokenizer):
 
     def save_vocabulary(self, save_directory):
         """
-        Save the sentencepiece vocabulary (copy original file) and special tokens file to a directory.
+        Save the vocabulary and special tokens file to a directory.
 
         Args:
             save_directory (:obj:`str`):
