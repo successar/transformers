@@ -73,8 +73,18 @@ def text_standardize(text):
 class OpenAIGPTTokenizer(PreTrainedTokenizer):
     """
     BPE tokenizer. Peculiarities:
-        - lower case all inputs
-        - uses SpaCy tokenizer and ftfy for pre-BPE tokenization if they are installed, fallback to BERT's BasicTokenizer if not.
+
+    - lower case all inputs
+    - uses SpaCy tokenizer and ftfy for pre-BPE tokenization if they are installed, fallback to BERT's BasicTokenizer if not.
+
+    Args:
+        vocab_file (:obj:`str`):
+            Path to the vocabulary file.
+        merges_file (:obj:`str`):
+            Path to the merges file.
+        unk_token (:obj:`string`, `optional`, defaults to "<unk>"):
+            The unknown token. A token that is not in the vocabulary cannot be converted to an ID and is set to be this
+            token instead.
     """
 
     vocab_files_names = VOCAB_FILES_NAMES
@@ -189,7 +199,16 @@ class OpenAIGPTTokenizer(PreTrainedTokenizer):
         return out_string
 
     def save_vocabulary(self, save_directory):
-        """Save the tokenizer vocabulary and merge files to a directory."""
+        """
+        Save the sentencepiece vocabulary (copy original file) and special tokens file to a directory.
+
+        Args:
+            save_directory (:obj:`str`):
+                The directory in which to save the vocabulary.
+
+        Returns:
+            :obj:`Tuple(str)`: Paths to the files saved.
+        """
         if not os.path.isdir(save_directory):
             logger.error("Vocabulary path ({}) should be a directory".format(save_directory))
             return
